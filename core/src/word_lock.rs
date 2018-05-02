@@ -5,14 +5,14 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use std::sync::atomic::{fence, AtomicUsize, Ordering};
-use std::ptr;
-use std::mem;
+use spinwait::SpinWait;
 use std::cell::Cell;
-use std::thread::LocalKey;
+use std::mem;
 #[cfg(not(feature = "nightly"))]
 use std::panic;
-use spinwait::SpinWait;
+use std::ptr;
+use std::sync::atomic::{fence, AtomicUsize, Ordering};
+use std::thread::LocalKey;
 use thread_parker::ThreadParker;
 
 struct ThreadData {

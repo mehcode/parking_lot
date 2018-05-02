@@ -5,8 +5,8 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use raw_mutex::ParkingLotMutex;
 use parking_lot_wrappers;
+use raw_mutex::ParkingLotMutex;
 
 /// A mutual exclusion primitive useful for protecting shared data
 ///
@@ -94,11 +94,20 @@ pub type Mutex<T> = parking_lot_wrappers::Mutex<ParkingLotMutex, T>;
 /// `Deref` and `DerefMut` implementations.
 pub type MutexGuard<'a, T> = parking_lot_wrappers::MutexGuard<'a, ParkingLotMutex, T>;
 
+/// An RAII mutex guard returned by `MutexGuard::map`, which can point to a
+/// subfield of the protected data.
+///
+/// The main difference between `MappedMutexGuard` and `MutexGuard` is that the
+/// former doesn't support temporarily unlocking and re-locking, since that
+/// could introduce soundness issues if the locked object is modified by another
+/// thread.
+pub type MappedMutexGuard<'a, T> = parking_lot_wrappers::MappedMutexGuard<'a, ParkingLotMutex, T>;
+
 #[cfg(test)]
 mod tests {
+    use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::mpsc::channel;
     use std::sync::Arc;
-    use std::sync::atomic::{AtomicUsize, Ordering};
     use std::thread;
     use {Condvar, Mutex};
 
@@ -274,8 +283,9 @@ mod tests {
         let mutex = Mutex::new(vec![0u8, 10]);
 
         assert_eq!(format!("{:?}", mutex), "Mutex { data: [0, 10] }");
-        assert_eq!(format!("{:#?}", mutex),
-"Mutex {
+        assert_eq!(
+            format!("{:#?}", mutex),
+            "Mutex {
     data: [
         0,
         10

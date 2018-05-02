@@ -5,8 +5,8 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use raw_rwlock::ParkingLotRwLock;
 use parking_lot_wrappers;
+use raw_rwlock::ParkingLotRwLock;
 
 /// A reader-writer lock
 ///
@@ -101,14 +101,34 @@ pub type RwLockWriteGuard<'a, T> = parking_lot_wrappers::RwLockWriteGuard<'a, Pa
 pub type RwLockUpgradableReadGuard<'a, T> =
     parking_lot_wrappers::RwLockUpgradableReadGuard<'a, ParkingLotRwLock, T>;
 
+/// An RAII read lock guard returned by `RwLockReadGuard::map`, which can point to a
+/// subfield of the protected data.
+///
+/// The main difference between `MappedRwLockReadGuard` and `RwLockReadGuard` is that the
+/// former doesn't support temporarily unlocking and re-locking, since that
+/// could introduce soundness issues if the locked object is modified by another
+/// thread.
+pub type MappedRwLockReadGuard<'a, T> =
+    parking_lot_wrappers::MappedRwLockReadGuard<'a, ParkingLotRwLock, T>;
+
+/// An RAII write lock guard returned by `RwLockWriteGuard::map`, which can point to a
+/// subfield of the protected data.
+///
+/// The main difference between `MappedRwLockWriteGuard` and `RwLockWriteGuard` is that the
+/// former doesn't support temporarily unlocking and re-locking, since that
+/// could introduce soundness issues if the locked object is modified by another
+/// thread.
+pub type MappedRwLockWriteGuard<'a, T> =
+    parking_lot_wrappers::MappedRwLockWriteGuard<'a, ParkingLotRwLock, T>;
+
 #[cfg(test)]
 mod tests {
     extern crate rand;
     use self::rand::Rng;
-    use std::sync::mpsc::channel;
-    use std::thread;
-    use std::sync::Arc;
     use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::mpsc::channel;
+    use std::sync::Arc;
+    use std::thread;
     use std::time::Duration;
     use {RwLock, RwLockUpgradableReadGuard, RwLockWriteGuard};
 
@@ -523,8 +543,9 @@ mod tests {
         let x = RwLock::new(vec![0u8, 10]);
 
         assert_eq!(format!("{:?}", x), "RwLock { data: [0, 10] }");
-        assert_eq!(format!("{:#?}", x),
-"RwLock {
+        assert_eq!(
+            format!("{:#?}", x),
+            "RwLock {
     data: [
         0,
         10

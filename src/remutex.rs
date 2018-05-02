@@ -42,6 +42,16 @@ pub type ReentrantMutex<T> = parking_lot_wrappers::ReentrantMutex<ParkingLotMute
 pub type ReentrantMutexGuard<'a, T> =
     parking_lot_wrappers::ReentrantMutexGuard<'a, ParkingLotMutex, ThreadId, T>;
 
+/// An RAII mutex guard returned by `ReentrantMutexGuard::map`, which can point to a
+/// subfield of the protected data.
+///
+/// The main difference between `MappedReentrantMutexGuard` and `ReentrantMutexGuard` is that the
+/// former doesn't support temporarily unlocking and re-locking, since that
+/// could introduce soundness issues if the locked object is modified by another
+/// thread.
+pub type MappedReentrantMutexGuard<'a, T> =
+    parking_lot_wrappers::MappedReentrantMutexGuard<'a, ParkingLotMutex, ThreadId, T>;
+
 #[cfg(test)]
 mod tests {
     use std::cell::RefCell;
@@ -102,8 +112,9 @@ mod tests {
         let mutex = ReentrantMutex::new(vec![0u8, 10]);
 
         assert_eq!(format!("{:?}", mutex), "ReentrantMutex { data: [0, 10] }");
-        assert_eq!(format!("{:#?}", mutex),
-"ReentrantMutex {
+        assert_eq!(
+            format!("{:#?}", mutex),
+            "ReentrantMutex {
     data: [
         0,
         10

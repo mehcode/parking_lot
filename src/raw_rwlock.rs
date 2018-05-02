@@ -5,17 +5,17 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
-use std::cell::Cell;
-use std::time::{Duration, Instant};
-use parking_lot_core::{self, FilterOp, ParkResult, ParkToken, SpinWait, UnparkResult};
-use elision::{have_elision, AtomicElisionExt};
-use raw_mutex::{TOKEN_HANDOFF, TOKEN_NORMAL};
 use deadlock;
+use elision::{have_elision, AtomicElisionExt};
+use parking_lot_core::{self, FilterOp, ParkResult, ParkToken, SpinWait, UnparkResult};
 use parking_lot_wrappers::{GuardNoSend, RawRwLock, RawRwLockDowngrade, RawRwLockFair,
                            RawRwLockRecursive, RawRwLockRecursiveTimed, RawRwLockTimed,
                            RawRwLockUpgrade, RawRwLockUpgradeDowngrade, RawRwLockUpgradeFair,
                            RawRwLockUpgradeTimed};
+use raw_mutex::{TOKEN_HANDOFF, TOKEN_NORMAL};
+use std::cell::Cell;
+use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
+use std::time::{Duration, Instant};
 
 const PARKED_BIT: usize = 0b001;
 const UPGRADING_BIT: usize = 0b010;

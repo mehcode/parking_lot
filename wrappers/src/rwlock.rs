@@ -6,10 +6,10 @@
 // copied, modified, or distributed except according to those terms.
 
 use core::cell::UnsafeCell;
-use core::ops::{Deref, DerefMut};
 use core::fmt;
-use core::mem;
 use core::marker::PhantomData;
+use core::mem;
+use core::ops::{Deref, DerefMut};
 
 #[cfg(feature = "owning_ref")]
 use owning_ref::StableAddress;
@@ -187,8 +187,7 @@ pub unsafe trait RawRwLockUpgradeFair: RawRwLockUpgrade + RawRwLockFair {
 
 /// Additional methods for RwLocks which support upgradable locks and lock
 /// downgrading.
-pub unsafe trait RawRwLockUpgradeDowngrade
-    : RawRwLockUpgrade + RawRwLockDowngrade {
+pub unsafe trait RawRwLockUpgradeDowngrade: RawRwLockUpgrade + RawRwLockDowngrade {
     /// Downgrades an upgradable lock to a shared lock.
     fn downgrade_upgradable(&self);
 
@@ -600,9 +599,7 @@ impl<R: RawRwLock, T> From<T> for RwLock<R, T> {
 impl<R: RawRwLock, T: ?Sized + fmt::Debug> fmt::Debug for RwLock<R, T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.try_read() {
-            Some(guard) => f.debug_struct("RwLock")
-                .field("data", &&*guard)
-                .finish(),
+            Some(guard) => f.debug_struct("RwLock").field("data", &&*guard).finish(),
             None => f.pad("RwLock { <locked> }"),
         }
     }

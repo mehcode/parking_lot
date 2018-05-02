@@ -6,10 +6,10 @@
 // copied, modified, or distributed except according to those terms.
 
 use core::cell::{Cell, UnsafeCell};
-use core::ops::Deref;
 use core::fmt;
-use core::mem;
 use core::marker::PhantomData;
+use core::mem;
+use core::ops::Deref;
 use core::sync::atomic::{AtomicUsize, Ordering};
 use mutex::{RawMutex, RawMutexFair, RawMutexTimed};
 use GuardNoSend;

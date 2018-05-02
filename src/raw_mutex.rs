@@ -16,10 +16,10 @@ use std::sync::atomic::AtomicUsize as AtomicU8;
 use std::sync::atomic::ATOMIC_USIZE_INIT as ATOMIC_U8_INIT;
 #[cfg(not(feature = "nightly"))]
 type U8 = usize;
-use std::time::{Duration, Instant};
-use parking_lot_core::{self, ParkResult, SpinWait, UnparkResult, UnparkToken, DEFAULT_PARK_TOKEN};
 use deadlock;
+use parking_lot_core::{self, ParkResult, SpinWait, UnparkResult, UnparkToken, DEFAULT_PARK_TOKEN};
 use parking_lot_wrappers::{GuardNoSend, RawMutex, RawMutexFair, RawMutexTimed};
+use std::time::{Duration, Instant};
 
 // UnparkToken used to indicate that that the target thread should attempt to
 // lock the mutex again as soon as it is unparked.
